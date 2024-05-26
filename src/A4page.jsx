@@ -58,7 +58,7 @@ const A4Page = ({ title }) => {
           <Tldraw />
         </TldrawContainer>
         <ButtonContainer>
-          <CustomizeButton to="/customizemidpage">next</CustomizeButton>
+          <CustomizeButton to="/ai/customizemidpage">next</CustomizeButton>
         </ButtonContainer>
       </A4Container>
     </>

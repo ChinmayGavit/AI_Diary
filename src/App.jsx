@@ -17,14 +17,14 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route index element={<Heropage/>}/>
-          <Route path="/signin" element={<Signup/>}/>
-          <Route path="/login" element={<Signin/>}/>
-          <Route path="/customizepage" element={<A4page/>}/>
-          <Route path="/customizemidpage" element={<A4midpage/>}/>
-          <Route path="/customizeendpage" element={<A4endpage/>}/>
-          <Route path="/error" element={<Nopage/>}/>
-          <Route path="/aigenerator" element={<ImageGenerator/>}/>
-          <Route path="/preview" element={<Preview/>}/>
+          <Route path="/ai/signin" element={<Signup/>}/>
+          <Route path="/ai/login" element={<Signin/>}/>
+          <Route path="/ai/customizepage" element={<A4page/>}/>
+          <Route path="/ai/customizemidpage" element={<A4midpage/>}/>
+          <Route path="/ai/customizeendpage" element={<A4endpage/>}/>
+          <Route path="/ai/error" element={<Nopage/>}/>
+          <Route path="/ai/aigenerator" element={<ImageGenerator/>}/>
+          <Route path="/ai/preview" element={<Preview/>}/>
         </Routes>
       </BrowserRouter>
     </div>

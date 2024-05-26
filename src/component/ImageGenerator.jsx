@@ -58,7 +58,7 @@ const ImageGenerator = () => {
             </div>
           </form>
         </div>
-        <Link to="/preview" className="preview-btn absolute bottom-4 right-4 h-9 w-28 flex items-center justify-center text-white bg-blue-600 rounded-full opacity-90 hover:opacity-100">
+        <Link to="/ai/preview" className="preview-btn absolute bottom-4 right-4 h-9 w-28 flex items-center justify-center text-white bg-blue-600 rounded-full opacity-90 hover:opacity-100">
           Preview
         </Link>
       </section>
