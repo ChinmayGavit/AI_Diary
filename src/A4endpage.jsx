@@ -48,6 +48,10 @@ const CustomizeButton = styled(Link)`
 
 const A4endPage = ({ title }) => {
   return (
+    <>
+    <div className="absolute top-0 left-0 z-10 p-4 bg-blue-500 border rounded-r-lg border-gray-300 shadow-md">
+        Back Cover
+      </div>
     <A4Container>
       {title && <PageTitle>{title}</PageTitle>}
       <TldrawContainer>
@@ -57,6 +61,7 @@ const A4endPage = ({ title }) => {
         <CustomizeButton to="/aigenerator">next</CustomizeButton>
       </ButtonContainer>
     </A4Container>
+    </>
   );
 };
 

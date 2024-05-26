@@ -48,15 +48,20 @@ const CustomizeButton = styled(Link)`
 
 const A4Page = ({ title }) => {
   return (
-    <A4Container>
-      {title && <PageTitle>{title}</PageTitle>}
-      <TldrawContainer>
-        <Tldraw />
-      </TldrawContainer>
-      <ButtonContainer>
-        <CustomizeButton to="/customizemidpage">next</CustomizeButton>
-      </ButtonContainer>
-    </A4Container>
+    <>
+      <div className="absolute top-0 left-0 z-10 p-4 bg-blue-500 border rounded-r-lg border-gray-300 shadow-md">
+        Front Cover
+      </div>
+      <A4Container>
+        {title && <PageTitle>{title}</PageTitle>}
+        <TldrawContainer>
+          <Tldraw />
+        </TldrawContainer>
+        <ButtonContainer>
+          <CustomizeButton to="/customizemidpage">next</CustomizeButton>
+        </ButtonContainer>
+      </A4Container>
+    </>
   );
 };
 
