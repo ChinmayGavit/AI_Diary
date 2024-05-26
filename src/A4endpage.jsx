@@ -46,7 +46,7 @@ const CustomizeButton = styled(Link)`
   }
 `;
 
-const A4Page = ({ title }) => {
+const A4endPage = ({ title }) => {
   return (
     <A4Container>
       {title && <PageTitle>{title}</PageTitle>}
@@ -54,10 +54,10 @@ const A4Page = ({ title }) => {
         <Tldraw />
       </TldrawContainer>
       <ButtonContainer>
-        <CustomizeButton to="/customizemidpage">next</CustomizeButton>
+        <CustomizeButton to="/aigenerator">next</CustomizeButton>
       </ButtonContainer>
     </A4Container>
   );
 };
 
-export default A4Page;
+export default A4endPage;
