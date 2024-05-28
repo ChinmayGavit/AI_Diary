@@ -1,6 +1,34 @@
-import React from 'react'
+import React, { useState } from 'react'
+import axios from 'axios';
 
 const Signup = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const userData = {
+      email: username,
+      fullName: name,
+      password: password
+    };
+
+    try {
+      const response = await axios.post('http://localhost:8000/api/users/register', userData);
+      console.log(response.data);
+      if (response.status === 201) {
+        alert(`${username} user created successfully! Click ok to continue signin.`);
+        setTimeout(() => {
+          window.location.href = '/ai/login';
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('There was an error!', error);
+    }
+  };
+
   return (
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
@@ -16,7 +44,7 @@ const Signup = () => {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form className="space-y-6" action="#" method="POST">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
                 Full Name
@@ -26,6 +54,8 @@ const Signup = () => {
                   id="name"
                   name="name"
                   type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   autoComplete="name"
                   required
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -42,6 +72,8 @@ const Signup = () => {
                   id="email"
                   name="email"
                   type="email"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   autoComplete="email"
                   required
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -58,6 +90,8 @@ const Signup = () => {
                   id="password"
                   name="password"
                   type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   autoComplete="new-password"
                   required
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
