@@ -21,7 +21,8 @@ const generateAccessAndRefreshToken = async (userId) => {
   } catch (error) {
     throw new ApiError(
       500,
-      " Something went wrong while generating access token and refresh token",error
+      " Something went wrong while generating access token and refresh token",
+      error
     );
   }
 };
@@ -61,6 +62,7 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
+  // console.log(req.body);
   const { email, password } = req.body;
 
   if (!email) {
@@ -68,7 +70,7 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 
   const user = await User.findOne({ email });
-  console.log(user);
+  // console.log(user);
 
   if (!user) {
     throw new ApiError(404, "User not found");
@@ -92,6 +94,7 @@ const loginUser = asyncHandler(async (req, res) => {
     httpOnly: true,
     secure: true,
   };
+  // console.log(accessToken);
 
   return res
     .status(200)
@@ -102,8 +105,8 @@ const loginUser = asyncHandler(async (req, res) => {
         200,
         {
           user: loggedInUser,
-          accessToken,
-          refreshToken,
+          accessToken: accessToken,
+          refreshToken: refreshToken,
         },
         "User Logged in successfully"
       )

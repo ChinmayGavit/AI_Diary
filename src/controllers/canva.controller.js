@@ -8,12 +8,20 @@ import { Canva } from "../models/canva.model.js";
 
 import { uploadCloudinary } from "../utils/cloudinary.js";
 
-import fetch from 'node-fetch';
+import { client, Status, GenerationStyle } from "imaginesdk";
 
-// import { DeleteCloudinaryAsset } from "../utils/deleteCloudinary.js";
+import { v2 as cloudinary } from "cloudinary";
+
+import sharp from "sharp";
+import archiver from "archiver";
+
+import https from "https";
+import fs, { createWriteStream,readdir } from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const frontPageAndCreateCanva = asyncHandler(async (req, res) => {
-  const fpLoaclPath = req.file?.path;
+  const fpLoaclPath = "C:/Users/HP/Downloads/Untitled.png";
 
   if (!fpLoaclPath) {
     throw new ApiError(400, "Front page is missing");
@@ -43,7 +51,7 @@ const frontPageAndCreateCanva = asyncHandler(async (req, res) => {
 });
 
 const backpageUpload = asyncHandler(async (req, res) => {
-  const bpLoaclPath = req.file?.path;
+  const bpLoaclPath = "C:/Users/HP/Downloads/Untitled.png";
   // console.log(bpLoaclPath);
   if (!bpLoaclPath) {
     throw new ApiError(400, "back page is missing");
@@ -71,7 +79,7 @@ const backpageUpload = asyncHandler(async (req, res) => {
 });
 
 const middlePageUpload = asyncHandler(async (req, res) => {
-  const mpLoaclPath = req.file?.path;
+  const mpLoaclPath = "C:/Users/HP/Downloads/Untitled.png";
   // console.log(mpLoaclPath);
 
   if (!mpLoaclPath) {
@@ -96,49 +104,120 @@ const middlePageUpload = asyncHandler(async (req, res) => {
 });
 
 const aipagesGenerateAndUpload = asyncHandler(async (req, res) => {
-  const prompt = req.body;
-  console.log(prompt);
-  const resp = await fetch(`https://api.limewire.com/api/image/generation`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Api-Version": "v1",
-      Accept: "application/json",
-      Authorization:
-        "Bearer lmwr_sk_EUdGj5ReVW_363g2PeNWuciEGpbvcRSUTRz5sj3HpK9Yd7xy",
-    },
-    body: JSON.stringify({
-      prompt: prompt,
-      negative_prompt: "darkness, fog",
-      samples: 3,
-      quality: "LOW",
-      guidance_scale: 50,
-      aspect_ratio: "1:1",
-      style: "PHOTOREALISTIC",
-    }),
-  });
+  console.log(req.user);
+  const { prompt } = req.body;
+  const imagine = client("vk-kIn6jXf3z6DLYGaJm01OOWBm1sOy4s6ZIfV2pbPWexNZD");
+  const aipages = [];
+  for (let i = 0; i < 2; i++) {
+    const response = await imagine.generations(prompt, {
+      style: GenerationStyle.IMAGINE_V5,
+    });
 
-  const data = await resp.json();
-  console.log(data);
-  const pages = [];
-  for (let i = 0; i < 3; i++) {
-    pages.push(data.data[i].asset_url);
+    if (response.status() === Status.OK) {
+      const image = response.data();
+      console.log(image);
+      if (image) image.asFile(`./public/temp/result${i}.png`);
+      const aipage = await uploadCloudinary(`./public/temp/result${i}.png`);
+      aipages.push(aipage.url);
+    } else {
+      console.log(`Status Code: ${response.status()}`);
+    }
   }
-
   const canva = await Canva.findOneAndUpdate(
     { owner: req.user._id }, // Query condition to find the document by owner
-    { $set: { aipages: pages } }, // Update operation
+    { $set: { aipages: aipages } }, // Update operation
     { new: true } // Options: return the updated document
   );
-
   return res
-    .status(201)
-    .json(new ApiResponse(200, canva, "back page created successfully"));
+    .status(200)
+    .json(new ApiResponse(200, canva, "ai page created successfully"));
 });
+
+const previewImage = asyncHandler(async (req, res) => {
+  const canva = await Canva.findOne(req.user._id);
+  canvaPages = {
+    fp: canva.frontPage,
+    aifirst: aipages[0],
+    mp: canva.middlePage,
+    aisecond: aipages[1],
+    bp: canva.backPage,
+  };
+  return res
+    .status(200)
+    .json(new ApiResponse(200, canvaPages, "ai page created successfully"));
+});
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const extractPublicId = (url) => {
+  const parts = url.split("/");
+  const publicIdWithExtension = parts[parts.length - 1];
+  const publicId = publicIdWithExtension.split(".")[0];
+  return publicId;
+};
+
+const downloadImage = (publicId) => {
+  return new Promise((resolve, reject) => {
+    const imageUrl = cloudinary.url(publicId, { secure: true });
+    const filePath = path.resolve(__dirname, "downloads", `${publicId}.jpg`);
+    console.log(filePath);
+
+    const file = fs.createWriteStream(filePath);
+    https
+      .get(imageUrl, (response) => {
+        response.pipe(file);
+
+        file.on("finish", () => {
+          file.close(resolve);
+        });
+
+        file.on("error", (err) => {
+          fs.unlink(filePath, () => reject(err));
+        });
+      })
+      .on("error", (err) => {
+        fs.unlink(filePath, () => reject(err));
+      });
+  });
+};
+
+const ensureDownloadDirectoryExists = () => {
+  const downloadDir = path.resolve(__dirname, "downloads");
+  if (!fs.existsSync(downloadDir)) {
+    fs.mkdirSync(downloadDir);
+  }
+};
+
+const download = asyncHandler(async (req, res) => {
+  const canva = await Canva.findOne({ owner: req.user._id });
+  if (!canva) {
+    return res.status(404).json({ message: "Canva not found" });
+  }
+
+  const canvaPages = [
+    extractPublicId(canva.frontPage),
+    extractPublicId(canva.aipages[0]),
+    extractPublicId(canva.middlePage),
+    extractPublicId(canva.aipages[1]),
+    extractPublicId(canva.backPage),
+  ];
+
+  ensureDownloadDirectoryExists();
+
+  for (const publicId of canvaPages) {
+    await downloadImage(publicId);
+  }
+
+  res.status(200).json({ message: "Images downloaded successfully" });
+});
+
 
 export {
   frontPageAndCreateCanva,
   backpageUpload,
   middlePageUpload,
   aipagesGenerateAndUpload,
+  previewImage,
+  download
 };

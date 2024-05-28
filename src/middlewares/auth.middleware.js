@@ -5,6 +5,7 @@ import { User } from "../models/user.model.js";
 
 // here we changed 'res' to '_' because that is how it is in production grade
 export const verifyJWT = asyncHandler(async (req, _, next) => {
+  console.log(req.cookies);
   try {
     const token =
       req.cookies?.accessToken ||
